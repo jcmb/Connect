@@ -9,7 +9,7 @@ setup(name='Connect Utils',
       author_email='Geoffrey@jcmbsoft.com',
       url='https://jcmbsoft.com/',
       license="MIT For Trimble, GPL V3 for everyone else",
-      py_modules=['Connect_Lib'],
+      py_modules=['Connect'],
       scripts=['Connect_Upload.py','Connect_Download.py'
         ]
      )
