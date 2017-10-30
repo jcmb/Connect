@@ -6,3 +6,5 @@ build/scripts-2.7/Connect_Download.py
 build/scripts-2.7/Connect_Upload.py
 
 build/lib/Connect.py
+
+*.pyc
