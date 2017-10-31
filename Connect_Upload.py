@@ -35,7 +35,7 @@ def create_arg_parser():
     parser.add_argument("folder", type=str, help="Folder in Project")
     parser.add_argument("files", nargs="*", help="Files to upload")
     parser.add_argument("-T", "--tell",action="store_true", dest="tell", default=False, help="Tell the settings for the run")
-    parser.add_argument("-R", "--recurse",action="store_true", dest="rescurse", default=False, help="Recurse down folders" )
+    parser.add_argument("-R", "--recurse",action="store_true", dest="recurse", default=False, help="Recurse down folders" )
     parser.add_argument("-l", "--location",type=str, dest="location", default="us", help="The Connect pod location. (us,europe,asia) Default=us.")
     parser.add_argument("-u", "--user", required=True,type=str, dest="user", help="The Connect username.")
     parser.add_argument("-p", "--password", required=True,type=str, dest="password", help="The Connect password.")
