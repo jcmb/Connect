@@ -11,7 +11,7 @@ import os
 import glob
 import traceback
 
-logging.getLogger(__name__).addHandler(NullHandler())
+#logging.getLogger(__name__).addHandler(NullHandler())
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
 syslog_handler = logging.handlers.SysLogHandler()
@@ -72,7 +72,7 @@ def process_arguments ():
         print "Folder: " + FOLDER
         print "Files: " + str(FILES)
         print "Glob: " + str(GLOB)
-        print "Recurse: " + RECURSE
+        print "Recurse: " + str(RECURSE)
         print "Use Cache (Check MD5 Hash): " + str(CACHE)
         print "Delete after Transfer: " + str(DELETE)
         print "Location: " + LOCATION
@@ -91,12 +91,12 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
 #  pprint (FILES)
   
   if VERBOSE:
-    sys.stderr.write("Getting Information from connect for folder {}".format(FOLDER_PATH))
+    sys.stderr.write("Getting Information from connect for folder {}\n".format(FOLDER_PATH))
   connect_contents= TC.get_children(folderId)
   connect_files=TC.files_only(connect_contents)
   connect_folder=TC.folders_only(connect_contents)
   if VERBOSE:
-    sys.stderr.write("Got Information from connect for folder {}".format(FOLDER_PATH))
+    sys.stderr.write("Got Information from connect for folder {}\n".format(FOLDER_PATH))
   
 #  pprint(connect_files)
   if FILES ==[]: #Did not get files passed so use the GLOB to get them
