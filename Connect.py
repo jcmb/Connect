@@ -43,7 +43,7 @@ class Connect ():
     self.xsrf_token=None
     self.headers={}
     self.project_URL=API_URL
-    if VERBOSE:
+    if VERBOSE>=2:
       logging.basicConfig(level=logging.DEBUG)
     
 
@@ -154,8 +154,9 @@ class Connect ():
     requesting=True
     start_request_item=0
     children_json={}
+    request_headers=deepcopy(self.headers);
+    
     while requesting:
-       request_headers=deepcopy(self.headers);
        request_headers["Range"]="items={}-{}".format(start_request_item,start_request_item+request_size-1)
        request_headers["Resource-Count"]="true"    
        logger.info("<{}>:\"{}\"".format("Get Children Range",request_headers["Range"]))       
