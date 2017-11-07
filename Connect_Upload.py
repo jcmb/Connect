@@ -10,6 +10,7 @@ import argparse
 import os
 import glob
 import traceback
+import time
 
 #logging.getLogger(__name__).addHandler(NullHandler())
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ def create_arg_parser():
     parser.add_argument("files", nargs="*", help="Files to upload")
     parser.add_argument("-T", "--tell",action="store_true", dest="tell", default=False, help="Tell the settings for the run")
     parser.add_argument("-R", "--recurse",action="store_true", dest="recurse", default=False, help="Recurse down folders" )
+    parser.add_argument("-a", "--age",type=int, dest="age", default=0,help="Only transfer files that are older than this number of hours.")
     parser.add_argument("-l", "--location",type=str, dest="location", default="us", help="The Connect pod location. (us,europe,asia) Default=us.")
     parser.add_argument("-u", "--user", required=True,type=str, dest="user", help="The Connect username.")
     parser.add_argument("-p", "--password", required=True,type=str, dest="password", help="The Connect password.")
@@ -60,6 +62,7 @@ def process_arguments ():
     GLOB=options.glob
     DELETE=options.delete
     CACHE=not options.no_cache
+    AGE=options.age
     
     if GLOB and FILES != []:
         sys.exit("Error: You can not use GLOB and provide FILES at the same time")
@@ -70,19 +73,21 @@ def process_arguments ():
     if options.tell:
         print "Project: " + PROJECT
         print "Folder: " + FOLDER
-        print "Files: " + str(FILES)
+#        print "Files: " + str(FILES)
         print "Glob: " + str(GLOB)
+        print "File Age: " + str(AGE)
         print "Recurse: " + str(RECURSE)
         print "Use Cache (Check MD5 Hash): " + str(CACHE)
         print "Delete after Transfer: " + str(DELETE)
         print "Location: " + LOCATION
         print "User: " +  options.user
+        print "Verbose: " + str(VERBOSE)
         
     
-    return (PROJECT,LOCATION, FOLDER, FILES, GLOB, DELETE, CACHE,RECURSE,VERBOSE,options.user,options.password)
+    return (PROJECT,LOCATION, FOLDER, FILES, GLOB, AGE, DELETE, CACHE,RECURSE,VERBOSE,options.user,options.password)
 
     
-def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GLOB,DELETE,CACHE,RECURSE,VERBOSE):
+def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE):
 #  traceback.print_stack()
 #  pdb.set_trace()
 #  print ("{}: {}".format(projectId,PROJECT))
@@ -104,9 +109,18 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
     
   for file in FILES: 
     if os.path.isfile(file):
+      local_filename=os.path.basename(file)
       if VERBOSE:
         sys.stderr.write("File: {}\n".format(file ))
-      local_filename=os.path.basename(file)
+
+      fileTime=os.path.getmtime(file)
+      fileDelta=time.time() - fileTime   
+      
+      if fileDelta < AGE*3600:
+        if VERBOSE:
+           sys.stdout.write("Skipped as too new\n")
+        continue
+
       if CACHE and (local_filename in connect_files):
         sys.stdout.write("Updating: {} in {}:{}, ".format(file,PROJECT,FOLDER_PATH))
         (result,task)=TC.upload_file(projectId,folderId,file,connect_files[local_filename]["hash"],connect_files[local_filename]["size"])
@@ -176,7 +190,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
 
 
 def main():
-  (PROJECT,LOCATION, FOLDER, FILES, GLOB, DELETE, CACHE, RECURSE,VERBOSE,USER,PASSWORD) = process_arguments()
+  (PROJECT,LOCATION, FOLDER, FILES, GLOB, AGE, DELETE, CACHE, RECURSE,VERBOSE,USER,PASSWORD) = process_arguments()
   TC=Connect(USER,PASSWORD,VERBOSE)
 
   Logged_In = TC.Login()
@@ -203,7 +217,7 @@ def main():
   else: 
     logger.info("folderID: "+folderId)
 
-  upload_files_and_folders(TC,projectId,PROJECT,folderId,FOLDER,FILES,GLOB,DELETE,CACHE,RECURSE,VERBOSE)
+  upload_files_and_folders(TC,projectId,PROJECT,folderId,FOLDER,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE)
    
   logger.info("Logging out")
 

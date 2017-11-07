@@ -8,6 +8,7 @@ from logging import NullHandler
 import os
 import hashlib
 from copy import deepcopy
+import sys
 
 logging.getLogger(__name__).addHandler(NullHandler())
 logger = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ class Connect ():
     self.xsrf_token=None
     self.headers={}
     self.project_URL=API_URL
+#    sys.stderr.write("******* Connect: Verbose: {}***************\n".format(VERBOSE))
     if VERBOSE>=2:
       logging.basicConfig(level=logging.DEBUG)
     
