@@ -73,7 +73,7 @@ def process_arguments ():
     if options.tell:
         print "Project: " + PROJECT
         print "Folder: " + FOLDER
-#        print "Files: " + str(FILES)
+        print "Files: " + str(len(FILES))
         print "Glob: " + str(GLOB)
         print "File Age: " + str(AGE)
         print "Recurse: " + str(RECURSE)
@@ -86,8 +86,18 @@ def process_arguments ():
     
     return (PROJECT,LOCATION, FOLDER, FILES, GLOB, AGE, DELETE, CACHE,RECURSE,VERBOSE,options.user,options.password)
 
+def subfolderId_from_subfolders(subfolder,subfolders):
+#  pprint (subfolders)
+  subfolderId=None 
+  for item in subfolders:
+#    pprint (item)
+    if item["name"].lower() == subfolder:
+       subfolderId=item["id"]
+       break
+    return(subfolderId)     
+
     
-def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE):
+def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,FOLDER_PATH,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE):
 #  traceback.print_stack()
 #  pdb.set_trace()
 #  print ("{}: {}".format(projectId,PROJECT))
@@ -100,8 +110,18 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
       sys.stderr.write("Getting Information from connect for folder {}\n".format(FOLDER_PATH))
     connect_contents= TC.get_children(folderId)
     connect_files=TC.files_only(connect_contents)
+    subfolders=TC.folders_only(connect_contents)
     if VERBOSE:
       sys.stderr.write("Got Information from connect for folder {}\n".format(FOLDER_PATH))
+  else:
+    if RECURSE:    
+      DIRS=os.listdir(".")
+      if VERBOSE:
+        sys.stderr.write("Getting subfolder Information from connect for folder {}\n".format(FOLDER_PATH))
+      subfolders=TC.get_folders(projectId,folderId)
+      if VERBOSE:
+        sys.stderr.write("Got sub folder Information from connect for folder {}\n".format(FOLDER_PATH))
+
   
 #  pprint(connect_files)
   if FILES ==[]: #Did not get files passed so use the GLOB to get them
@@ -169,15 +189,18 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
        
       
       if FOLDER_PATH=="/":
-        subfolderId=TC.get_folderId_by_path(projectId,PROJECT,dir)
+        subfolderId=TC.get_folderId_by_path(projectId,PROJECT,dir) #This one is always fast
         new_FOLDER_PATH=dir
       else:
         new_FOLDER_PATH=FOLDER_PATH+"/"+dir
-        subfolderId=TC.get_folderId_by_path(projectId,PROJECT,new_FOLDER_PATH)
+        subfolderId_from_subfolders(dir,subfolders)
+#        subfolderId=TC.get_folderId_by_path(projectId,PROJECT,new_FOLDER_PATH) # This can be super slow for folders with lots of files
         
-      sys.stdout.write("Directory: {}\n".format(new_FOLDER_PATH))
         
-      if subfolderId == None:
+      if subfolderId != None:
+        sys.stdout.write("Directory: {}\n".format(new_FOLDER_PATH))
+      else:
+        sys.stdout.write("Create Directory: {}\n".format(new_FOLDER_PATH))
         subfolderId=TC.create_folder(projectId,folderId,dir)
         
         if subfolderId == None:
@@ -228,7 +251,9 @@ def main():
   else: 
     logger.info("folderID: "+folderId)
 
-  upload_files_and_folders(TC,projectId,PROJECT,folderId,FOLDER,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE)
+  subfolders=TC.get_folders(projectId,folderId)
+
+  upload_files_and_folders(TC,projectId,PROJECT,folderId,subfolders,FOLDER,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE)
    
   logger.info("Logging out")
 

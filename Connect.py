@@ -26,8 +26,9 @@ API_URL=BASE_URL+"tc/api/2.0/"
 EUROPE_API_URL=EUROPE_BASE_URL+"tc/api/2.0/"
 ASIA_API_URL=ASIA_BASE_URL+"tc/api/2.0/"
 
-BASE_URL_HTTP="http://app.connect.trimble.com/"
+BASE_URL_HTTP="https://app.connect.trimble.com/"
 API_URL_HTTP=BASE_URL_HTTP+"tc/app/2.0/"
+OLD_API_URL_HTTP=BASE_URL_HTTP+"tc/app/"
 
 def json_to_dict(json): # 
   result={}
@@ -119,7 +120,12 @@ class Connect ():
 
   def get_folders(self,projectID,parentID):
 #TODO This is not documented as needing the project ID  
-    r=requests.get(self.project_URL+"folders?parentId="+parentID+"&projectId="+projectID, cookies=self.cookies,headers=self.headers)
+# OLD_API_URL_HTTP+"folders?parentId="+parentID+"?projectId="+projectID Returns the sub items
+# OLD_API_URL_HTTP+"folders/parentID?projectId="+projectID Returns details of only the folder
+
+#    print OLD_API_URL_HTTP+"folders?parentId="+parentID+"&projectId="+projectID
+    r=requests.get(OLD_API_URL_HTTP+"folders?parentId="+parentID+"&projectId="+projectID, cookies=self.cookies,headers=self.headers)
+#    pprint (r.json())
     return(json_to_dict(r.json()))
     
   def get_root_folder(self,project_info):
@@ -227,7 +233,7 @@ class Connect ():
          r=requests.get(self.project_URL+"folders/by_path?projectId="+projectId+"&path="+PROJECT+'/'+path, cookies=self.cookies,headers=self.headers)
        folder_contents=r.json()
 #       pprint (folder_contents)
-
+       folderId=None 
        for item in folder_contents:
 #          pprint (item)
           if item["name"].lower() == dir_name:
