@@ -89,15 +89,17 @@ def process_arguments ():
 def subfolderId_from_subfolders(subfolder,subfolders):
 #  pprint (subfolders)
   subfolderId=None 
+  subfolder=subfolder.lower()
+#  print "Looking for: " + subfolder
   for item in subfolders:
-#    pprint (item)
-    if item["name"].lower() == subfolder:
-       subfolderId=item["id"]
+#    pprint (subfolders[item]["name"])
+    if subfolders[item]["name"].lower() == subfolder:
+       subfolderId=subfolders[item]["id"]
        break
-    return(subfolderId)     
+  return(subfolderId)     
 
     
-def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,FOLDER_PATH,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE):
+def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE):
 #  traceback.print_stack()
 #  pdb.set_trace()
 #  print ("{}: {}".format(projectId,PROJECT))
@@ -105,6 +107,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
 #  print os.getcwd()
 #  pprint (FILES)
   connect_files={}
+  subfolders={}
   if CACHE:
     if VERBOSE:
       sys.stderr.write("Getting Information from connect for folder {}\n".format(FOLDER_PATH))
@@ -130,7 +133,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
   for file in FILES: 
     if os.path.isfile(file):
       local_filename=os.path.basename(file)
-      if VERBOSE:
+      if VERBOSE>2:
         sys.stderr.write("File: {}\n".format(file ))
 
       fileTime=os.path.getmtime(file)
@@ -193,9 +196,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
         new_FOLDER_PATH=dir
       else:
         new_FOLDER_PATH=FOLDER_PATH+"/"+dir
-        subfolderId=subfolderId_from_subfolders(dir,current_subfolders)
-        subfolders=TC.get_folders(projectId,subfolderId)
-
+        subfolderId=subfolderId_from_subfolders(dir,subfolders)
 #        subfolderId=TC.get_folderId_by_path(projectId,PROJECT,new_FOLDER_PATH) # This can be super slow for folders with lots of files
         
         
@@ -213,9 +214,9 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
       logger.debug("Changing directory to : "+dir)          
       os.chdir(dir)
       if GLOB==None: # If we did not get a GLOB passed then do all of the files in the sub folder
-        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,subfolders,new_FOLDER_PATH,glob.glob("*"),None,AGE,DELETE,CACHE,RECURSE,VERBOSE)
+        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,glob.glob("*"),None,AGE,DELETE,CACHE,RECURSE,VERBOSE)
       else:  #Got a Glob, do not pass any files pass the GLOB 
-        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,subfolders,new_FOLDER_PATH,[],GLOB,AGE,DELETE,CACHE,RECURSE,VERBOSE)
+        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,[],GLOB,AGE,DELETE,CACHE,RECURSE,VERBOSE)
       os.chdir("..")
       logger.debug("Back from sub directory upload")
 
@@ -253,9 +254,9 @@ def main():
   else: 
     logger.info("folderID: "+folderId)
 
-  subfolders=TC.get_folders(projectId,folderId)
+#  subfolders=TC.get_folders(projectId,folderId)
 
-  upload_files_and_folders(TC,projectId,PROJECT,folderId,subfolders,FOLDER,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE)
+  upload_files_and_folders(TC,projectId,PROJECT,folderId,FOLDER,FILES,GLOB,AGE, DELETE,CACHE,RECURSE,VERBOSE)
    
   logger.info("Logging out")
 
