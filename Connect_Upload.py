@@ -94,14 +94,14 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
 #  print ("{}: {}".format(folderId,FOLDER_PATH))
 #  print os.getcwd()
 #  pprint (FILES)
-  
-  if VERBOSE:
-    sys.stderr.write("Getting Information from connect for folder {}\n".format(FOLDER_PATH))
-  connect_contents= TC.get_children(folderId)
-  connect_files=TC.files_only(connect_contents)
-  connect_folder=TC.folders_only(connect_contents)
-  if VERBOSE:
-    sys.stderr.write("Got Information from connect for folder {}\n".format(FOLDER_PATH))
+  connect_files={}
+  if CACHE:
+    if VERBOSE:
+      sys.stderr.write("Getting Information from connect for folder {}\n".format(FOLDER_PATH))
+    connect_contents= TC.get_children(folderId)
+    connect_files=TC.files_only(connect_contents)
+    if VERBOSE:
+      sys.stderr.write("Got Information from connect for folder {}\n".format(FOLDER_PATH))
   
 #  pprint(connect_files)
   if FILES ==[]: #Did not get files passed so use the GLOB to get them
@@ -125,20 +125,31 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
         sys.stdout.write("Updating: {} in {}:{}, ".format(file,PROJECT,FOLDER_PATH))
         (result,task)=TC.upload_file(projectId,folderId,file,connect_files[local_filename]["hash"],connect_files[local_filename]["size"])
         sys.stdout.write("{}.".format(task))        
-        if task == "Cached":
-          if DELETE:
-             os.remove(file)
-             sys.stdout.write(" Deleted. ")
+        if result:
+          if task == "Cached":
+            if DELETE:
+               os.remove(file)
+               sys.stdout.write(" Deleted. ")
+          else: 
+             sys.stdout.write("Error: " +task)
+        else: 
+           sys.stdout.write("Upload Failed. ")
       else: 
         sys.stdout.write("New Upload: {} to {}, ".format(file,FOLDER_PATH))
-        TC.upload_file(projectId,folderId,file,None,None)
-        
-        if DELETE:
-           sys.stdout.write("Uploaded. ")
-           os.remove(file)
-           sys.stdout.write("Deleted. ")
+        (result,task)=TC.upload_file(projectId,folderId,file,None,None)
+        if result:
+          if task == "Uploaded":        
+            if DELETE:
+               sys.stdout.write("Uploaded. ")
+               os.remove(file)
+               sys.stdout.write("Deleted. ")
+            else: 
+               sys.stdout.write("Uploaded. ")
+          else: 
+             sys.stdout.write("Error: " +task)
         else: 
-           sys.stdout.write("Uploaded. ")
+           sys.stdout.write("Upload Failed. ")
+        
       sys.stdout.write("\n")
 
   if RECURSE:    
