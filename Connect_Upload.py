@@ -137,7 +137,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
       fileDelta=time.time() - fileTime   
       
       if fileDelta < AGE*3600:
-        if VERBOSE:
+        if VERBOSE>=2:
            sys.stdout.write("Skipped as too new\n")
         continue
 
@@ -193,7 +193,9 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
         new_FOLDER_PATH=dir
       else:
         new_FOLDER_PATH=FOLDER_PATH+"/"+dir
-        subfolderId_from_subfolders(dir,subfolders)
+        subfolderId=subfolderId_from_subfolders(dir,current_subfolders)
+        subfolders=TC.get_folders(projectId,subfolderId)
+
 #        subfolderId=TC.get_folderId_by_path(projectId,PROJECT,new_FOLDER_PATH) # This can be super slow for folders with lots of files
         
         
@@ -211,9 +213,9 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,current_subfolders,F
       logger.debug("Changing directory to : "+dir)          
       os.chdir(dir)
       if GLOB==None: # If we did not get a GLOB passed then do all of the files in the sub folder
-        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,glob.glob("*"),AGE,None,DELETE,CACHE,RECURSE,VERBOSE)
+        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,subfolders,new_FOLDER_PATH,glob.glob("*"),None,AGE,DELETE,CACHE,RECURSE,VERBOSE)
       else:  #Got a Glob, do not pass any files pass the GLOB 
-        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,[],GLOB,AGE,DELETE,CACHE,RECURSE,VERBOSE)
+        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,subfolders,new_FOLDER_PATH,[],GLOB,AGE,DELETE,CACHE,RECURSE,VERBOSE)
       os.chdir("..")
       logger.debug("Back from sub directory upload")
 
