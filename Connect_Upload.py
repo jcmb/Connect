@@ -212,8 +212,8 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
         subfolderId=TC.create_folder(projectId,folderId,dir)
         
         if subfolderId == None:
-           logger.critical("could not create folder {}".format(dir))
-           sys.exit("could not create folder {}".format(dir))
+           logger.critical("could not create folder {} {} Project:{} Folder:{}".format(new_FOLDER_PATH,dir,projectId,folderId))
+           sys.exit("could not create folder {} {} Project:{} Folder:{}".format(new_FOLDER_PATH,dir,projectId,folderId))
 
       logger.info("folderID: "+subfolderId)
       logger.debug("Changing directory to : "+dir)          
