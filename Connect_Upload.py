@@ -32,7 +32,7 @@ from Connect import Connect
 def create_arg_parser():
     usage="Connect_Upload.py [user] [password] <Project_Name> <Files or Pattern>"
     parser=argparse.ArgumentParser(prog="Connect_Upload.py")
-    parser.add_argument('--version', action='version', version='%(prog)s 2.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 2.0.1')
     parser.add_argument("project", type=str, help="Project Name")
     parser.add_argument("folder", type=str, help="Folder in Project")
     parser.add_argument("files", nargs="*", help="Files to upload")
@@ -135,6 +135,9 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
   if FILES ==None: #Did not get files passed so use the GLOB to get them
     print "GLOB: " + GLOB
     LOCAL_FILES= glob.glob(GLOB)
+  else:
+    print "FILES: " + FILES
+
     
   for file in LOCAL_FILES: 
     if os.path.isfile(file):
