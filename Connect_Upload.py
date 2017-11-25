@@ -112,6 +112,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
 #  pprint (FILES)
   connect_files={}
   subfolders={}
+  LOCAL_FILES=FILES # WE use Local files to make sure that we continue to use the GLOB
   if CACHE:
     if VERBOSE:
       sys.stderr.write("Getting Information from connect for folder {}\n".format(FOLDER_PATH))
@@ -133,9 +134,9 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
 #  pprint(connect_files)
   if FILES ==None: #Did not get files passed so use the GLOB to get them
     print "GLOB: " + GLOB
-    FILES= glob.glob(GLOB)
+    LOCAL_FILES= glob.glob(GLOB)
     
-  for file in FILES: 
+  for file in LOCAL_FILES: 
     if os.path.isfile(file):
       local_filename=os.path.basename(file)
       if VERBOSE>2:
