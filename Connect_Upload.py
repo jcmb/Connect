@@ -227,7 +227,7 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
       if GLOB==None: # If we did not get a GLOB passed then do all of the files in the sub folder
         upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,glob.glob("*"),None,AGE,DELETE,CACHE,RECURSE,VERBOSE)
       else:  #Got a Glob, do not pass any files pass the GLOB 
-        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,[],GLOB,AGE,DELETE,CACHE,RECURSE,VERBOSE)
+        upload_files_and_folders(TC,projectId,PROJECT,subfolderId,new_FOLDER_PATH,None,GLOB,AGE,DELETE,CACHE,RECURSE,VERBOSE)
       os.chdir("..")
       logger.debug("Directory is : "+os.getcwd())          
       logger.debug("Back from sub directory upload")
