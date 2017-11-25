@@ -31,7 +31,8 @@ from Connect import Connect
 
 def create_arg_parser():
     usage="Connect_Upload.py [user] [password] <Project_Name> <Files or Pattern>"
-    parser=argparse.ArgumentParser()
+    parser=argparse.ArgumentParser(prog="Connect_Upload.py")
+    parser.add_argument('--version', action='version', version='%(prog)s 2.0')
     parser.add_argument("project", type=str, help="Project Name")
     parser.add_argument("folder", type=str, help="Folder in Project")
     parser.add_argument("files", nargs="*", help="Files to upload")
@@ -69,6 +70,9 @@ def process_arguments ():
 
     if GLOB ==None and FILES==[]:
         sys.exit("Error: You must provide either GLOB or FILES")
+        
+    if FILES==[]:
+      FILES=None
 
     if options.tell:
         print "Project: " + PROJECT
@@ -127,7 +131,8 @@ def upload_files_and_folders(TC,projectId,PROJECT, folderId,FOLDER_PATH,FILES,GL
 
   
 #  pprint(connect_files)
-  if FILES ==[]: #Did not get files passed so use the GLOB to get them
+  if FILES ==None: #Did not get files passed so use the GLOB to get them
+    print "GLOB: " + GLOB
     FILES= glob.glob(GLOB)
     
   for file in FILES: 
