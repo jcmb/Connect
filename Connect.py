@@ -46,8 +46,10 @@ class Connect ():
     self.headers={}
     self.project_URL=API_URL
 #    sys.stderr.write("******* Connect: Verbose: {}***************\n".format(VERBOSE))
-    if VERBOSE>=2:
+    if VERBOSE>=3:
       logging.basicConfig(level=logging.DEBUG)
+    elif VERBOSE==2:
+      logging.basicConfig(level=logging.INFO)
     
 
 
